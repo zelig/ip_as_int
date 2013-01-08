@@ -1,0 +1,2 @@
+. .env
+rvm ruby-1.9.3-p362@ip_as_int --create
