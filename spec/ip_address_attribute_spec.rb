@@ -1,6 +1,8 @@
 require 'spec_helper'
 require 'ip_as_int'
 require 'active_model'
+require 'active_record'
+require 'logger'
 
 describe ::IpAsInt::IpAddressAttribute do
 
@@ -10,7 +12,7 @@ describe ::IpAsInt::IpAddressAttribute do
 
   shared_examples_for "accessors and validation" do
 
-       context "with validation" do
+    context "with validation" do
       before :each do
         @model = model_class(:ip).new
       end
@@ -102,7 +104,7 @@ describe ::IpAsInt::IpAddressAttribute do
         include ActiveModel::Validations
         include ::IpAsInt::IpAddressAttribute
         ip_address(*attrs)
-      end
+     end
     end
 
     include_examples "accessors and validation"
@@ -111,10 +113,25 @@ describe ::IpAsInt::IpAddressAttribute do
 
   context "activemodel integration" do
 
+    ActiveRecord::Base.establish_connection({'adapter' => 'sqlite3', 'database' => ":memory:" })
+    ActiveRecord::Base.logger = Logger.new("#{File.dirname(__FILE__)}/../../active_record.log")
+
     def model_class(*attrs)
+      ActiveRecord::Base.connection.create_table(:testmodels, :force=>true) do |t|
+        attrs.each do |attr|
+          t.integer attr unless attr.is_a?(Hash)
+        end
+      end
       Class.new(ActiveRecord::Base) do
+        self.table_name = 'testmodels'
         include ::IpAsInt::IpAddressAttribute
         ip_address(*attrs)
+        def write_attribute(*)
+          super
+        end
+        def read_attribute(*)
+          super
+        end
       end
     end
 
