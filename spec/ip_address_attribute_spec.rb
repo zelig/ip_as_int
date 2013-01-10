@@ -104,7 +104,7 @@ describe ::IpAsInt::IpAddressAttribute do
         include ActiveModel::Validations
         include ::IpAsInt::IpAddressAttribute
         ip_address(*attrs)
-     end
+      end
     end
 
     include_examples "accessors and validation"
@@ -136,6 +136,30 @@ describe ::IpAsInt::IpAddressAttribute do
     end
 
     include_examples "accessors and validation"
+
+    context "persistence and scoping" do
+
+      before :each do
+        @model_class = model_class(:ip, :validation => { :allow_nil => true })
+        @model = @model_class.new
+      end
+
+      it "survives persistence in db" do
+        model.ip = '192.168.0.1'
+        model.save.should be_true
+        model.reload.ip.should == '192.168.0.1'
+      end
+
+      it "supports scope for retrieval from db by ip strings" do
+        models = @model_class.create(
+          [{ :ip => '192.168.0.1' },
+           { :ip => '192.168.0.2' },
+           { :ip => '192.168.0.3' }
+           ])
+        @model_class.ip('192.168.0.1', '192.168.0.2').should == models[0..1]
+      end
+
+    end
 
   end
 

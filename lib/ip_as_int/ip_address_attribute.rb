@@ -51,8 +51,9 @@ module IpAsInt
 
         if options[:scope] && respond_to?(:where)
           attrs.each do |attr|
-            scope attr, (lambda { |ip_string|
-                           where(attr => ::IpAsInt.ip2int(ip_string))
+            scope attr, (lambda { |*ip_strings|
+                           ip_int = ip_strings.map { |ip_string| ::IpAsInt.ip2int(ip_string)  }
+                           where(attr => ip_int)
             })
           end
         end
