@@ -1,2 +1,1 @@
-- testing scope with AR
-- amend docs to include bare activemodel integration
+nothing?
